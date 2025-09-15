@@ -1,20 +1,11 @@
 #include "main.h"
 
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
+#define LEFT_MOTOR_PORTS {1, 2}
+#define RIGHT_MOTOR_PORTS {3, 4}
+#define INTAKE_PORTS {5, -6}
+
+const float DEADZONE = 3;
+
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -22,12 +13,7 @@ void on_center_button() {
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-void initialize() {
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
-
-	pros::lcd::register_btn1_cb(on_center_button);
-}
+void initialize() {}
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or
@@ -74,21 +60,40 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({1, -2, 3});    // Creates a motor group with forwards ports 1 & 3 and reversed port 2
-	pros::MotorGroup right_mg({-4, 5, -6});  // Creates a motor group with forwards port 5 and reversed ports 4 & 6
+  pros::Controller master(pros::E_CONTROLLER_MASTER);
+  pros::MotorGroup left_mg(LEFT_MOTOR_PORTS);
+  pros::MotorGroup right_mg(RIGHT_MOTOR_PORTS);
+  pros::MotorGroup intake_mg(INTAKE_PORTS);
+  left_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  right_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  intake_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
+  while (1) {
+    int dir = master.get_analog(ANALOG_LEFT_Y); // Gets amount forward/backward from left joystick
+    int turn = master.get_analog(ANALOG_RIGHT_X); // Gets the turn left/right from right joystick
 
-	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
+    // if joystick is in deadzone, it counts as zero
+    // prevents unintentional drift
+    if (abs(dir) < DEADZONE)
+      dir = 0;
+    if (abs(turn) < DEADZONE)
+      turn = 0;
 
-		// Arcade control scheme
-		int dir = master.get_analog(ANALOG_LEFT_Y);    // Gets amount forward/backward from left joystick
-		int turn = master.get_analog(ANALOG_RIGHT_X);  // Gets the turn left/right from right joystick
-		left_mg.move(dir - turn);                      // Sets left motor voltage
-		right_mg.move(dir + turn);                     // Sets right motor voltage
-		pros::delay(20);                               // Run for 20 ms then update
-	}
+    if (dir && turn == 0) {
+      left_mg.brake();
+      right_mg.brake();
+    } else {
+      left_mg.move(dir - turn);  // Sets left motor voltage
+      right_mg.move(dir + turn); // Sets right motor voltage
+    }
+
+    if (master.get_digital(DIGITAL_R2))
+      intake_mg.move(127);
+    if (master.get_digital(DIGITAL_R1))
+      intake_mg.move(-127);
+    if (master.get_digital(DIGITAL_R1) == master.get_digital(DIGITAL_R2))
+      intake_mg.brake();
+
+    pros::delay(2);
+  }
 }
