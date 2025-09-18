@@ -22,8 +22,6 @@ void initialize() {
 }
 
 void disabled() {
-  left_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-  right_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
   left_mg.brake();
   right_mg.brake();
 }
@@ -64,6 +62,6 @@ void opcontrol() {
     if (master.get_digital(DIGITAL_A))
       intake_pneum.toggle();
 
-    pros::delay(2);
+    pros::delay(5);
   }
 }
