@@ -5,7 +5,7 @@
 #define INTAKE_PORTS {5, -6}
 #define INTAKE_PNEUMATIC_PORTS {'a'}
 
-const int8_t DEADZONE = 3;
+const int32_t DEADZONE = 3;
 
 /**
  * initialize -> competition initialize -> autonomous -> disabled -> op control -> disabled
@@ -46,8 +46,8 @@ void opcontrol() {
     turn *= abs(turn) > DEADZONE;
 
     if (dir || turn) {
-      left_mg.move(dir - turn);
-      right_mg.move(dir + turn);
+      left_mg.move(dir + turn);
+      right_mg.move(dir - turn);
     } else {
       left_mg.brake();
       right_mg.brake();
@@ -59,8 +59,12 @@ void opcontrol() {
       intake_mg.move(-127);
     if (master.get_digital(DIGITAL_R1) == master.get_digital(DIGITAL_R2))
       intake_mg.brake();
-    if (master.get_digital(DIGITAL_A))
+    if (master.get_digital_new_release(DIGITAL_X))
       intake_pneum.toggle();
+    if (master.get_digital(DIGITAL_UP))
+      intake_pneum.extend();
+    if (master.get_digital(DIGITAL_DOWN))
+      intake_pneum.retract();
 
     pros::delay(5);
   }
