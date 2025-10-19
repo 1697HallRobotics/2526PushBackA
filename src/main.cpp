@@ -1,9 +1,6 @@
 #include "main.h"
 
-#define LEFT_MOTOR_PORTS {1, 2}
-#define RIGHT_MOTOR_PORTS {3, 4}
-#define INTAKE_PORTS {5, -6}
-#define INTAKE_PNEUMATIC_PORTS {'a'}
+const bool operator_is_master = false; 
 
 const int32_t DEADZONE = 3;
 
@@ -34,6 +31,36 @@ void competition_initialize() {}
 
 void autonomous() {}
 
+void operator_ctrl() {
+  if(operator_is_master) {
+    if (master.get_digital(DIGITAL_R2))
+        intake_mg.move(127);
+    if (master.get_digital(DIGITAL_R1))
+      intake_mg.move(-127);
+    if (master.get_digital(DIGITAL_R1) == master.get_digital(DIGITAL_R2))
+      intake_mg.brake();
+    if (master.get_digital_new_release(DIGITAL_X))
+      intake_pneum.toggle();
+    if (master.get_digital(DIGITAL_UP))
+      intake_pneum.extend();
+    if (master.get_digital(DIGITAL_DOWN))
+      intake_pneum.retract();
+  } else {
+    if (partner.get_digital(DIGITAL_R2))
+      intake_mg.move(127);
+    if (partner.get_digital(DIGITAL_R1))
+      intake_mg.move(-127);
+    if (partner.get_digital(DIGITAL_R1) == master.get_digital(DIGITAL_R2))
+      intake_mg.brake();
+    if (partner.get_digital_new_release(DIGITAL_X))
+      intake_pneum.toggle();
+    if (partner.get_digital(DIGITAL_UP))
+      intake_pneum.extend();
+    if (partner.get_digital(DIGITAL_DOWN))
+      intake_pneum.retract();
+  }
+}
+
 void opcontrol() {
 
   while (1) {
@@ -53,18 +80,7 @@ void opcontrol() {
       right_mg.brake();
     }
 
-    if (master.get_digital(DIGITAL_R2))
-      intake_mg.move(127);
-    if (master.get_digital(DIGITAL_R1))
-      intake_mg.move(-127);
-    if (master.get_digital(DIGITAL_R1) == master.get_digital(DIGITAL_R2))
-      intake_mg.brake();
-    if (master.get_digital_new_release(DIGITAL_X))
-      intake_pneum.toggle();
-    if (master.get_digital(DIGITAL_UP))
-      intake_pneum.extend();
-    if (master.get_digital(DIGITAL_DOWN))
-      intake_pneum.retract();
+    operator_ctrl();
 
     pros::delay(5);
   }
