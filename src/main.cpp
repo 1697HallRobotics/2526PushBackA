@@ -87,7 +87,7 @@ tasks:
 bool left_active = false;
 bool right_active = false;
 double speed = 10;
-double spinnySpeed = 20;
+double spinnySpeed = 170;
 
 int quadrant = 0;
 	while (true)
@@ -99,7 +99,7 @@ int quadrant = 0;
     */
 		//printf("\n");
 		double verticalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
-		double horizontalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
+		double horizontalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_X)*-1;
 
 		double vertical = 0;
 		double horizontal = 0;

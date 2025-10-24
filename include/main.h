@@ -77,9 +77,9 @@
  //MAKE SURE PORTS ARE ACTUALLY SET
  
  
- MotorGroup rightMotors({3,4}); //maybe make one of these negative        
- MotorGroup leftMotors({5,6});
- MotorGroup leftSpinnyThings({10,11});//need to actually assign these
+ MotorGroup rightMotors({9,10}); //maybe make one of these negative        
+ MotorGroup leftMotors({19,20});
+ MotorGroup leftSpinnyThings({6});//need to actually assign these
  MotorGroup rightSpinnyThings({12,13});//need to actually assign these
 
  
