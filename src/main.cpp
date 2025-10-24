@@ -86,7 +86,8 @@ tasks:
 
 bool left_active = false;
 bool right_active = false;
-float speed = 10;
+double speed = 10;
+double spinnySpeed = 10;
 
 int quadrant = 0;
 	while (true)
@@ -117,7 +118,7 @@ int quadrant = 0;
 		rightMotors.move((vertical - horizontal)*speed);	
 
 		if (mainController.get_digital(E_CONTROLLER_DIGITAL_L2) >= 1){
-			spinnyThings.move(10);
+			spinnyThings.move(spinnySpeed);
 		}
 
 		//printf(std::to_string(quadrant).c_str());
