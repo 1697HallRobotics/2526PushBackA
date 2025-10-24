@@ -76,10 +76,13 @@
  
  //MAKE SURE PORTS ARE ACTUALLY SET
  
- 
+ //USE THE ONES HERE, THESE ARE THE PORTS THAT SEEM TO MATTER
  MotorGroup rightMotors({9,10}); //maybe make one of these negative        
  MotorGroup leftMotors({19,20});
  MotorGroup leftSpinnyThings({6});//need to actually assign these
+ //I DIDN'T SEE ANY USE FOR THE ONE BELOW BUT I INCLUDED IT JUST IN CASE
+
+
  MotorGroup rightSpinnyThings({12,13});//need to actually assign these
 
  
