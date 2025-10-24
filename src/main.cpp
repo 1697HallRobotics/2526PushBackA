@@ -87,7 +87,7 @@ tasks:
 bool left_active = false;
 bool right_active = false;
 double speed = 10;
-double spinnySpeed = 170;
+double spinnySpeed = 200;
 
 int quadrant = 0;
 	while (true)
@@ -123,8 +123,8 @@ int quadrant = 0;
     spinning motors
     */
 		if (mainController.get_digital(E_CONTROLLER_DIGITAL_L2) >= 1){
-			leftSpinnyThings.move(spinnySpeed);
-      		rightSpinnyThings.move(-1*spinnySpeed);
+			leftSpinnyThings.move(-1*spinnySpeed);
+      		rightSpinnyThings.move(spinnySpeed);
 		}
 		else{
 			leftSpinnyThings.brake();
