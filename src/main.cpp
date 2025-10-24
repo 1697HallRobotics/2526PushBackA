@@ -98,8 +98,8 @@ int quadrant = 0;
 		movement
     */
 		//printf("\n");
-		double verticalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
-		double horizontalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_X)*-1;
+		double verticalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_Y)*-1;
+		double horizontalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
 
 		double vertical = 0;
 		double horizontal = 0;
