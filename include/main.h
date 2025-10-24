@@ -81,8 +81,8 @@
  MotorGroup leftMotors({5,6});
  MotorGroup leftSpinnyThings({10,11});//need to actually assign these
  MotorGroup rightSpinnyThings({12,13});//need to actually assign these
-Nema
 
+ 
  #ifdef __cplusplus
  }
  #endif
