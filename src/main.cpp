@@ -93,7 +93,8 @@ int quadrant = 0;
 	while (true)
 	{
 		/*
-		movement*/
+		movement
+    */
 		printf("\n");
 		double verticalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
 		double horizontalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
@@ -116,9 +117,12 @@ int quadrant = 0;
 		}
 		leftMotors.move((vertical + horizontal)*speed*-1); //make sure accurate
 		rightMotors.move((vertical - horizontal)*speed);	
-
+    /*
+    spinning motors
+    */
 		if (mainController.get_digital(E_CONTROLLER_DIGITAL_L2) >= 1){
-			spinnyThings.move(spinnySpeed);
+			leftSpinnyThings.move(spinnySpeed);
+      rightSpinnyThings.move(spinnySpeed);
 		}
 
 		//printf(std::to_string(quadrant).c_str());
