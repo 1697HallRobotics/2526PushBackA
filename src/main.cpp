@@ -87,7 +87,7 @@ tasks:
 bool left_active = false;
 bool right_active = false;
 double speed = 10;
-double spinnySpeed = 10;
+double spinnySpeed = 20;
 
 int quadrant = 0;
 	while (true)
