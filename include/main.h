@@ -80,7 +80,7 @@
  MotorGroup rightMotors({3,4}); //maybe make one of these negative        
  MotorGroup leftMotors({5,6});
  MotorGroup leftSpinnyThings({10,11});//need to actually assign these
- MotorGroup rightSpinnyThings({10,11});//need to actually assign these
+ MotorGroup rightSpinnyThings({12,13});//need to actually assign these
 
  #ifdef __cplusplus
  }

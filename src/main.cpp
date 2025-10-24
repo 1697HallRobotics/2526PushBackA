@@ -122,7 +122,11 @@ int quadrant = 0;
     */
 		if (mainController.get_digital(E_CONTROLLER_DIGITAL_L2) >= 1){
 			leftSpinnyThings.move(spinnySpeed);
-      rightSpinnyThings.move(spinnySpeed);
+      		rightSpinnyThings.move(-1*spinnySpeed);
+		}
+		else{
+			leftSpinnyThings.brake();
+			rightSpinnyThings.brake();
 		}
 
 		//printf(std::to_string(quadrant).c_str());
