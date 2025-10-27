@@ -1,6 +1,7 @@
 #include "main.h"
 
-#include <string>
+const int32_t DEADZONE = 3;
+const float speed = 1;
 
 /**
  * A callback function for LLEMU's center button.
@@ -25,10 +26,17 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+  drive_rf.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  drive_rb.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  drive_lf.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  drive_lb.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
-	pros::lcd::register_btn1_cb(on_center_button);
+  intake_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  l3_out.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+}
+
+void disabled() {
+  brake();
 }
 
 /**
@@ -62,77 +70,70 @@ void competition_initialize() {}
  */
 void autonomous() {}
 
-/**
- * Runs the operator control code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the operator
- * control mode.
- *
- * If no competition control is connected, this function will run immediately
- * following initialize().
- *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
- */
+void operator_ctrl() {
+  pros::Controller* controller = partner.is_connected() ? &partner : &master;
+
+  if (controller->get_digital(DIGITAL_R2))
+      intake_mg.move(127);
+  if (controller->get_digital(DIGITAL_R1))
+    intake_mg.move(-127);
+  if (controller->get_digital(DIGITAL_R1) == controller->get_digital(DIGITAL_R2))
+    intake_mg.brake();
+  
+  if (controller->get_digital_new_release(DIGITAL_X))
+    intake_pneum.toggle();
+  if (controller->get_digital(DIGITAL_A))
+    intake_pneum.extend();
+  if (controller->get_digital(DIGITAL_B))
+    intake_pneum.retract();
+  
+  if(controller->get_digital(DIGITAL_DOWN))
+    l1_out.move(127);
+  if(controller->get_digital(DIGITAL_LEFT))
+    l2_out.move(127);
+  if(controller->get_digital(DIGITAL_UP))
+    l3_out.move(127);
+  if(controller->get_digital(DIGITAL_RIGHT))
+    l1_out.move(-127);
+  if(controller->get_digital(DIGITAL_DOWN) + controller->get_digital(DIGITAL_LEFT) + controller->get_digital(DIGITAL_RIGHT) + controller->get_digital(DIGITAL_UP) > 1)
+    l3_out.brake();
+}
+
 void opcontrol() {
 
-/*
-tasks:
-- done for now!
+  while (1) {
+    int32_t dir_y = master.get_analog(ANALOG_LEFT_Y);
+    int32_t dir_x = master.get_analog(ANALOG_LEFT_Y);
+    int32_t turn = master.get_analog(ANALOG_RIGHT_X);
 
+    float dir_mult = 127 * speed / (abs(dir_y) + abs(dir_x));
 
-*/
+    // if joystick is in deadzone, it counts as zero (prevents unintentional drift)
 
-bool left_active = false;
-bool right_active = false;
-double speed = 10;
-double spinnySpeed = 200;
+    dir_y *= abs(dir_y) > DEADZONE;
+    turn *= abs(turn) > DEADZONE;
+
+    if (dir_y || dir_x || turn) {
+      drive_rf.move((dir_y + dir_x) * dir_mult - turn);
+      drive_rb.move((dir_y - dir_x) * dir_mult - turn);
+      drive_lf.move((dir_y - dir_x) * dir_mult + turn);
+      drive_lb.move((dir_y + dir_x) * dir_mult + turn); 
+    } else {
+      brake();
+    }
 
 int quadrant = 0;
 	while (true)
 	{
 		//if there is a pneumatics system someone needs to code it!!! I can't figure out how
 
-		/*
-		movement
-    */
-		//printf("\n");
-		double verticalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_Y)*-1;
-		double horizontalJoystick = mainController.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
+    pros::delay(5);
+  }
+}
 
-		double vertical = 0;
-		double horizontal = 0;
-		bool driving = false;
-
-		if (verticalJoystick > 1 || verticalJoystick < -1){
-			vertical = verticalJoystick;
-			driving = true;
-		}
-		if (horizontalJoystick > 1 || horizontalJoystick < -1){
-			horizontal = horizontalJoystick;
-			driving = true;
-		}
-		if (!driving){
-			leftMotors.brake();
-			rightMotors.brake();
-		}
-		leftMotors.move((vertical + horizontal)*speed*-1); //make sure accurate
-		rightMotors.move((vertical - horizontal)*speed);	
-    /*
-    spinning motors
-    */
-		if (mainController.get_digital(E_CONTROLLER_DIGITAL_L2) >= 1){
-			leftSpinnyThings.move(-1*spinnySpeed);
-      		rightSpinnyThings.move(spinnySpeed);
-		}
-		else{
-			leftSpinnyThings.brake();
-			rightSpinnyThings.brake();
-		}
-
-		//printf(std::to_string(quadrant).c_str());
-		delay(5);																												
-	}
-	
+void brake() {
+  drive_rf.brake();
+  drive_rb.brake();
+  drive_lf.brake();
+  drive_lb.brake();
 }
