@@ -1,6 +1,7 @@
 #include "main.h"
 
 const int32_t DEADZONE = 3;
+const float speed = 1;
 
 /**
  * initialize -> competition initialize -> autonomous -> disabled -> op control -> disabled
@@ -11,15 +12,17 @@ const int32_t DEADZONE = 3;
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-  left_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-  right_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  drive_rf.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  drive_rb.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  drive_lf.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  drive_lb.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+
   intake_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
   l3_out.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 }
 
 void disabled() {
-  left_mg.brake();
-  right_mg.brake();
+  brake();
 }
 
 /**
@@ -62,24 +65,36 @@ void operator_ctrl() {
 void opcontrol() {
 
   while (1) {
-    int32_t dir = master.get_analog(ANALOG_LEFT_Y);
+    int32_t dir_y = master.get_analog(ANALOG_LEFT_Y);
+    int32_t dir_x = master.get_analog(ANALOG_LEFT_Y);
     int32_t turn = master.get_analog(ANALOG_RIGHT_X);
+
+    float dir_mult = speed * 0.5;
 
     // if joystick is in deadzone, it counts as zero (prevents unintentional drift)
 
-    dir *= abs(dir) > DEADZONE;
+    dir_y *= abs(dir_y) > DEADZONE;
     turn *= abs(turn) > DEADZONE;
 
-    if (dir || turn) {
-      left_mg.move(dir - turn);
-      right_mg.move(dir + turn);
+    if (dir_y || dir_x || turn) {
+      drive_rf.move((dir_y + dir_x) * dir_mult  - turn);
+      drive_rb.move((dir_y - dir_x) * dir_mult - turn);
+      drive_lf.move((dir_y - dir_x) * dir_mult + turn);
+      drive_lb.move((dir_y +  dir_x) * dir_mult + turn);
+
     } else {
-      left_mg.brake();
-      right_mg.brake();
+      brake();
     }
 
     operator_ctrl();
 
     pros::delay(5);
   }
+}
+
+void brake() {
+  drive_rf.brake();
+  drive_rb.brake();
+  drive_lf.brake();
+  drive_lb.brake();
 }
