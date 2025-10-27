@@ -69,7 +69,7 @@ void opcontrol() {
     int32_t dir_x = master.get_analog(ANALOG_LEFT_Y);
     int32_t turn = master.get_analog(ANALOG_RIGHT_X);
 
-    float dir_mult = speed * 0.5;
+    float dir_mult = 127 * speed / (abs(dir_y) + abs(dir_x));
 
     // if joystick is in deadzone, it counts as zero (prevents unintentional drift)
 
@@ -77,11 +77,10 @@ void opcontrol() {
     turn *= abs(turn) > DEADZONE;
 
     if (dir_y || dir_x || turn) {
-      drive_rf.move((dir_y + dir_x) * dir_mult  - turn);
+      drive_rf.move((dir_y + dir_x) * dir_mult - turn);
       drive_rb.move((dir_y - dir_x) * dir_mult - turn);
       drive_lf.move((dir_y - dir_x) * dir_mult + turn);
-      drive_lb.move((dir_y +  dir_x) * dir_mult + turn);
-
+      drive_lb.move((dir_y + dir_x) * dir_mult + turn); 
     } else {
       brake();
     }
