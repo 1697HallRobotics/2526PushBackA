@@ -1,7 +1,5 @@
 #include "main.h"
 
-const bool operator_is_master = false; 
-
 const int32_t DEADZONE = 3;
 
 /**
@@ -16,6 +14,7 @@ void initialize() {
   left_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
   right_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
   intake_mg.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  l3_out.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 }
 
 void disabled() {
@@ -32,33 +31,32 @@ void competition_initialize() {}
 void autonomous() {}
 
 void operator_ctrl() {
-  if(operator_is_master) {
-    if (master.get_digital(DIGITAL_R2))
-        intake_mg.move(127);
-    if (master.get_digital(DIGITAL_R1))
-      intake_mg.move(-127);
-    if (master.get_digital(DIGITAL_R1) == master.get_digital(DIGITAL_R2))
-      intake_mg.brake();
-    if (master.get_digital_new_release(DIGITAL_X))
-      intake_pneum.toggle();
-    if (master.get_digital(DIGITAL_UP))
-      intake_pneum.extend();
-    if (master.get_digital(DIGITAL_DOWN))
-      intake_pneum.retract();
-  } else {
-    if (partner.get_digital(DIGITAL_R2))
+  pros::Controller* controller = partner.is_connected() ? &partner : &master;
+
+  if (controller->get_digital(DIGITAL_R2))
       intake_mg.move(127);
-    if (partner.get_digital(DIGITAL_R1))
-      intake_mg.move(-127);
-    if (partner.get_digital(DIGITAL_R1) == master.get_digital(DIGITAL_R2))
-      intake_mg.brake();
-    if (partner.get_digital_new_release(DIGITAL_X))
-      intake_pneum.toggle();
-    if (partner.get_digital(DIGITAL_UP))
-      intake_pneum.extend();
-    if (partner.get_digital(DIGITAL_DOWN))
-      intake_pneum.retract();
-  }
+  if (controller->get_digital(DIGITAL_R1))
+    intake_mg.move(-127);
+  if (controller->get_digital(DIGITAL_R1) == controller->get_digital(DIGITAL_R2))
+    intake_mg.brake();
+  
+  if (controller->get_digital_new_release(DIGITAL_X))
+    intake_pneum.toggle();
+  if (controller->get_digital(DIGITAL_A))
+    intake_pneum.extend();
+  if (controller->get_digital(DIGITAL_B))
+    intake_pneum.retract();
+  
+  if(controller->get_digital(DIGITAL_DOWN))
+    l1_out.move(127);
+  if(controller->get_digital(DIGITAL_LEFT))
+    l2_out.move(127);
+  if(controller->get_digital(DIGITAL_UP))
+    l3_out.move(127);
+  if(controller->get_digital(DIGITAL_RIGHT))
+    l1_out.move(-127);
+  if(controller->get_digital(DIGITAL_DOWN) + controller->get_digital(DIGITAL_LEFT) + controller->get_digital(DIGITAL_RIGHT) + controller->get_digital(DIGITAL_UP) > 1)
+    l3_out.brake();
 }
 
 void opcontrol() {
@@ -73,8 +71,8 @@ void opcontrol() {
     turn *= abs(turn) > DEADZONE;
 
     if (dir || turn) {
-      left_mg.move(dir + turn);
-      right_mg.move(dir - turn);
+      left_mg.move(dir - turn);
+      right_mg.move(dir + turn);
     } else {
       left_mg.brake();
       right_mg.brake();

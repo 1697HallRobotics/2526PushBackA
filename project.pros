@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "1697A UFD",
+    "project_name": "P 1697A UFD",
     "target": "v5",
     "templates": {
       "kernel": {
@@ -592,8 +592,9 @@
       }
     },
     "upload_options": {
-      "description": "1697A - Up For Debate",
-      "icon": "alien"
+      "description": "1697A - Up For Debate: Partner Edition",
+      "icon": "power",
+      "slot": 1
     },
     "use_early_access": false
   }
