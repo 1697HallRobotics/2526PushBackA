@@ -32,6 +32,12 @@ void autonomous() {
   driveTrain->moveDistance (feet(2));
   intake_mg.move_absolute (900, 127);
   intake_pneum.toggle();
+
+  //my (Yair) random code
+  /*
+  left_mg.move(-100);
+  right_mg.move(-100);
+  */
 }
 
 void operator_ctrl() {
